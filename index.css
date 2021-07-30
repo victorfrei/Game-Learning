@@ -1,0 +1,9 @@
+#workspace{
+    width: 500px;
+    height: 500px;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    image-rendering: -moz-crisp-edges;
+    margin: 20px;
+    border: 5px rgba(0, 0, 0, 0.3)  solid;
+}

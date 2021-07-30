@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./index.css">
+    <title>ate</title>
+</head>
+
+<body>
+    <canvas id='workspace'></canvas>
+</body>
+<script>
+    const gameScreen = document.getElementById('workspace')
+
+    gameScreen.setAttribute('width', '20px');
+    gameScreen.setAttribute('height', '20px');
+
+
+    let GameObjects = {
+        collectiblesColor: 'green',
+        DangersColor: 'red',
+
+        Players: {
+
+            'player1': {
+                color: 'blue',
+                pos: {
+                    x: 2,
+                    y: 3
+                }
+            },
+
+            'player2': {
+                color: 'gray',
+                pos: {
+                    x: 6,
+                    y: 13
+                }
+            }
+        },
+        Collectibles: {
+
+            'col1': {
+                pos: {
+                    x: 1,
+                    y: 6
+                }
+            },
+            'col2': {
+                pos: {
+                    x: 8,
+                    y: 8
+                }
+            }
+        },
+        Dangers: {
+
+            'dan1': {
+                pos: {
+                    x: 8,
+                    y: 10
+                }
+            }
+        }
+    }
+
+
+    function render(pos) {
+        const cxt = gameScreen.getContext('2d');
+        cxt.fillStyle = 'white'
+        cxt.fillRect(0, 0, 20, 20)
+
+        for (let player in GameObjects.Players) {
+            //current player has diferent color
+            cxt.fillStyle = GameObjects.Players[player].color
+            cxt.fillRect(GameObjects.Players[player].pos.x, GameObjects.Players[player].pos.y, 1, 1)
+        }
+
+        for (let collectible in GameObjects.Collectibles) {
+            cxt.fillStyle = GameObjects.collectiblesColor
+            cxt.fillRect(GameObjects.Collectibles[collectible].pos.x, GameObjects.Collectibles[collectible].pos.y, 1, 1)
+        }
+
+        for (let danger in GameObjects.Dangers) {
+            cxt.fillStyle = GameObjects.DangersColor
+            cxt.fillRect(GameObjects.Dangers[danger].pos.x, GameObjects.Dangers[danger].pos.y, 1, 1)
+        }
+        requestAnimationFrame(render);
+
+    }
+
+    render();
+
+
+    const keyboard = CreateKeyboardListener();
+    const game = Game();
+    keyboard.subscribe(game.MovePlayer);
+    keyboard.subscribe(game.ColiderDetector);
+
+
+    function Game() {
+
+        function AddPlayer(Id, color, pos) {
+            GameObjects.Players[Id] = {
+                color,
+                pos
+            }
+        }
+
+        function AddCollectibles(Id, pos) {
+            GameObjects.Collectibles[Id] = {
+                pos
+            }
+        }
+
+        function AddDangers(Id, pos) {
+            GameObjects.Dangers[Id] = {
+                pos
+            }
+        }
+
+
+        function ColiderDetector({ player }) {
+            const players = GameObjects.Players
+            const collectibles = GameObjects.Collectibles
+            const dangers = GameObjects.Dangers
+            
+
+            for (let collectible in collectibles) {
+                if (players[player].pos.x == collectibles[collectible].pos.x && players[player].pos.y == collectibles[collectible].pos.y) {
+                    //colisão com coletavel faça depois algo que pontue o jogador no futuro
+                    delete collectibles[collectible];
+                }
+            }
+
+            for (let danger in dangers) {
+                if (players[player].pos.x == dangers[danger].pos.x && players[player].pos.y == dangers[danger].pos.y) {
+                    //colisão com coletavel faça depois algo que pontue o jogador no futuro
+                    delete dangers[danger];
+                }
+            }
+
+        }
+
+        function MovePlayer(command) {
+            const gameWidth = parseInt(gameScreen.getAttribute('width'));
+            const gameHeight = parseInt(gameScreen.getAttribute('height'));
+            const player = GameObjects.Players['player1'];
+
+
+            switch (event.key) {
+                case 'ArrowUp':
+                    if (player.pos.y > 0) {
+                        player.pos.y -= 1;
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (player.pos.y < gameHeight - 1) {
+                        player.pos.y += 1;
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (player.pos.x > 0) {
+                        player.pos.x -= 1;
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (player.pos.x < gameWidth - 1) {
+                        player.pos.x += 1;
+                    }
+                    break;
+            }
+        }
+
+        return {
+            MovePlayer,
+            AddPlayer,
+            AddCollectibles,
+            AddDangers,
+            ColiderDetector
+        }
+    }
+
+
+    function CreateKeyboardListener(event) {
+        const state = {
+            observers: []
+        }
+
+        function subscribe(observerFunction) {
+            state.observers.push(observerFunction);
+        }
+
+        function notifyAll(command) {
+            console.log(`<-KeyboardListener-> Notificando ${state.observers.length} ${state.observers.length == 1 ? "observador" : "observadores"}!`)
+            for (const observerFunction of state.observers) {
+                observerFunction(command)
+            }
+        }
+
+        document.addEventListener('keydown', handleKeyboard);
+
+        function handleKeyboard(event) {
+            let KeyPressed = event.key;
+
+            const command = {
+                player: "player1",
+                KeyPressed
+            }
+
+            notifyAll(command);
+
+        }
+
+        return {
+            subscribe
+        }
+    }
+
+
+
+
+</script>
+
+</html>
