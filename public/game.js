@@ -79,6 +79,17 @@ export default function createGame() {
     }
 
 
+    function Start(){
+        setInterval(()=>{
+        AddCollectibles();
+        },2000)
+
+        setInterval(()=>{
+            AddDangers();
+        },14000)
+
+    }
+
 
     function AddCollectibles() {
         let Id = Math.random()*9999;
@@ -92,7 +103,7 @@ export default function createGame() {
     }
 
     function AddDangers() {
-        
+        let Id = Math.random()*9999;
         GameObjects.Dangers[Id] = {
             pos: {
                 x: Math.round(Math.random()*gameWidth),
@@ -170,7 +181,8 @@ export default function createGame() {
         notifyAll,
         update,
         removePlayer,
-        unsubscribeAll
+        unsubscribeAll,
+        Start
     }
 }
 

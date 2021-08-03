@@ -25,6 +25,7 @@ var arrayOfObjects = [];
         return arrayOfObjects.sort((a, b) => (a.points > b.points) ? -1 : 1)
 }
 
+game.Start();
 
 io.on("connection",(socket)=>{
 
@@ -35,7 +36,7 @@ io.on("connection",(socket)=>{
 
         var shorted = PlayersUpdated();
         io.emit("toplist",shorted);
-    
+
 
    
 
