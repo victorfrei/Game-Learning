@@ -12,6 +12,17 @@
 
 <body>
     <canvas id='workspace'></canvas>
+    <div class="placar">
+        <h1>Top 10</h1>
+        <table id="toplist">
+            <tr>
+              <th>Nome</th>
+              <th>Pontos</th>
+            </tr>
+            </table>
+    
+        <div id='playersonline' style="margin: 0 auto;">2 Player Online</div>
+    </div>
 </body>
 <script type="module">
     const socket = io();
@@ -25,6 +36,9 @@
     gameScreen.setAttribute('height', '20px');
     const ctx = gameScreen.getContext('2d');
     var game = createGame();
+    game.unsubscribeAll();
+    keyboard.unsubscribeAll();
+
 
 
     socket.on("connect", () => {
@@ -32,9 +46,41 @@
         keyboard.subscribe(keyboardPressed);
     })
 
+    socket.on("disconnect",()=>{
+        game.unsubscribeAll();
+        keyboard.unsubscribeAll();
+    })
+
     socket.on('update', (GameObjects) => {
         game.update(GameObjects, socket.id);
+        
     })
+
+socket.on('toplist',(list)=>{
+    var toplist = document.getElementById('toplist');
+    var playeronline = document.getElementById('playersonline');
+    var toplist2 = [];
+    playeronline.innerText = `${list.length} Player Online`
+    var length = list.length>= 10? 10 : list.length;
+
+    for(var x=0;x<length;x++){
+        if(list[x].player == socket.id){
+        toplist2.push(`<tr style="color:blue">
+              <td>${list[x].player}</td>
+              <td>${list[x].points}</td>
+            </tr>`)
+        }else{
+            toplist2.push(`<tr>
+              <td>${list[x].player}</td>
+              <td>${list[x].points}</td>
+            </tr>`)
+        }
+    }
+    toplist.innerHTML = toplist2;
+    
+})
+
+
 
     function keyboardPressed(command){
         socket.emit("keyboardevent",command);

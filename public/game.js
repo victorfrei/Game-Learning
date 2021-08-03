@@ -1,5 +1,8 @@
 
 export default function createGame() {
+    const gameWidth = 19;
+    const gameHeight = 19;
+
 
     const state = {
         observer: []
@@ -52,16 +55,20 @@ export default function createGame() {
     }
 
 
+    function unsubscribeAll(){
+        state.observer = [];
+    }
+
     function update(GameObjects){
         this.GameObjects = GameObjects;
         notifyAll('update')
     }
 
 
-    function AddPlayer(Id, color, pos) {
+    function AddPlayer(Id, pos) {
         GameObjects.Players[Id] = {
-            color,
-            pos
+            pos,
+            points: 0
         }
         notifyAll('AddPlayer')
     }
@@ -73,16 +80,24 @@ export default function createGame() {
 
 
 
-    function AddCollectibles(Id, pos) {
+    function AddCollectibles() {
+        let Id = Math.random()*9999;
         GameObjects.Collectibles[Id] = {
-            pos
+            pos: {
+                x: Math.round(Math.random()*gameWidth),
+                y: Math.round(Math.random()*gameHeight)
+            } 
         }
         notifyAll('AddCollectibles')
     }
 
-    function AddDangers(Id, pos) {
+    function AddDangers() {
+        
         GameObjects.Dangers[Id] = {
-            pos
+            pos: {
+                x: Math.round(Math.random()*gameWidth),
+                y: Math.round(Math.random()*gameHeight)
+            } 
         }
         notifyAll('AddDangers')
     }
@@ -97,6 +112,7 @@ export default function createGame() {
         for (let collectible in collectibles) {
             if (players[player].pos.x == collectibles[collectible].pos.x && players[player].pos.y == collectibles[collectible].pos.y) {
                 //colisão com coletavel faça depois algo que pontue o jogador no futuro
+                players[player].points++;
                 delete collectibles[collectible];
             }
         }
@@ -104,6 +120,11 @@ export default function createGame() {
         for (let danger in dangers) {
             if (players[player].pos.x == dangers[danger].pos.x && players[player].pos.y == dangers[danger].pos.y) {
                 //colisão com coletavel faça depois algo que pontue o jogador no futuro
+                const lostPoints = Math.round(Math.random()*players[player].points);
+                players[player].points-= lostPoints;
+                for(var x=0;x<lostPoints;x++){
+                    this.AddCollectibles();
+                }
                 delete dangers[danger];
             }
         }
@@ -111,10 +132,7 @@ export default function createGame() {
     }
 
     function MovePlayer(command) {
-        const gameWidth = 20;
-        const gameHeight = 20;
         const player = GameObjects.Players[command.player];
-
 
         switch (command.KeyPressed) {
             case 'ArrowUp':
@@ -123,7 +141,7 @@ export default function createGame() {
                 }
                 break;
             case 'ArrowDown':
-                if (player.pos.y < gameHeight - 1) {
+                if (player.pos.y < gameHeight) {
                     player.pos.y += 1;
                 }
                 break;
@@ -133,7 +151,7 @@ export default function createGame() {
                 }
                 break;
             case 'ArrowRight':
-                if (player.pos.x < gameWidth - 1) {
+                if (player.pos.x < gameWidth) {
                     player.pos.x += 1;
                 }
                 break;
@@ -151,7 +169,8 @@ export default function createGame() {
         subscribe,
         notifyAll,
         update,
-        removePlayer
+        removePlayer,
+        unsubscribeAll
     }
 }
 

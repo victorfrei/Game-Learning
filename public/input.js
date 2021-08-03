@@ -15,6 +15,10 @@
             }
         }
 
+        function unsubscribeAll(){
+            state.observer = [];
+        }
+
         document.addEventListener('keydown', handleKeyboard);
 
         function handleKeyboard(event) {
@@ -31,6 +35,7 @@
 
         return {
             subscribe,
-            notifyAll
+            notifyAll,
+            unsubscribeAll
         }
     }
